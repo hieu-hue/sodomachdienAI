@@ -1,4 +1,5 @@
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+//import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 //const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 // Dùng dòng này để lấy key trực tiếp, không qua trung gian
