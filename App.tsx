@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ImageUploader } from './components/ImageUploader';
 import { SolutionViewer } from './components/SolutionViewer';
 import { Button } from './components/Button';
-import { analyzePhysicsProblem } from './geminiService';
+import { getGeminiResponse as analyzePhysicsProblem } from './geminiService';
 import { AnalysisStatus, ImageFile } from './types';
 
 const App: React.FC = () => {
