@@ -1,15 +1,15 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Khởi tạo AI
-const ai = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+// 1. Khởi tạo AI với API Key từ Vercel
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
-// Hàm chuyển file ảnh sang dạng AI đọc được
-const fileToGenerativePart = async (file: File): Promise<{ inlineData: { data: string; mimeType: string } }> => {
-  return new Promise((resolve, reject) => {
+// 2. Hàm chuyển file ảnh sang dạng AI đọc được (Base64)
+async function fileToGenerativePart(file: File) {
+  return new Promise<{ inlineData: { data: string; mimeType: string } }>((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
-      // Xóa cái đầu "data:image/jpeg;base64," đi chỉ lấy mã phía sau
+      // Lấy phần mã phía sau dấu phẩy
       const base64Data = base64String.split(',')[1];
       resolve({
         inlineData: {
@@ -21,29 +21,30 @@ const fileToGenerativePart = async (file: File): Promise<{ inlineData: { data: s
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-};
+}
 
-// Hàm chính để gọi Gemini
-export async function getGeminiResponse(prompt: string, imageFile: File | null) {
+// 3. Hàm chính để gọi Gemini (Anh chú ý tên hàm này nhé)
+// Nếu bên file App.tsx anh gọi hàm tên khác (ví dụ: getGeminiResponse), anh nhớ đổi tên hàm "run" dưới đây cho giống.
+export async function run(prompt: string, imageFile: File | null) {
   try {
-    // 1. Chọn model (đời máy)
-    // Lưu ý: Dùng 'gemini-1.5-flash' cho nhanh và rẻ
-    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Chọn model đời mới, tốc độ nhanh
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // 2. Chuẩn bị dữ liệu gửi đi
-    let promptConfig = [prompt];
+    let promptConfig: any[] = [prompt];
+    
+    // Nếu có ảnh thì thêm ảnh vào gói dữ liệu gửi đi
     if (imageFile) {
       const imagePart = await fileToGenerativePart(imageFile);
-      promptConfig = [prompt, imagePart] as any;
+      promptConfig = [prompt, imagePart];
     }
 
-    // 3. Gửi và nhận kết quả
+    // Gửi đi và chờ kết quả
     const result = await model.generateContent(promptConfig);
     const response = await result.response;
     return response.text();
 
   } catch (error) {
-    console.error("Lỗi khi gọi Gemini API:", error);
+    console.error("Lỗi khi gọi Gemini:", error);
     throw error;
   }
 }
