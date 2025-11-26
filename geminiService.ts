@@ -1,9 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 1. Khởi tạo kết nối với Google Gemini
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+// 1. In ra kiểm tra xem đã lấy được API Key chưa (Nó sẽ hiện true/false trong Console)
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+console.log("Check API Key:", apiKey ? "Đã có Key" : "Chưa có Key!");
 
-// 2. Hàm hỗ trợ đọc file ảnh (nếu có)
+const genAI = new GoogleGenerativeAI(apiKey);
+
 async function fileToGenerativePart(file: File) {
   return new Promise<{ inlineData: { data: string; mimeType: string } }>((resolve, reject) => {
     const reader = new FileReader();
@@ -19,32 +21,34 @@ async function fileToGenerativePart(file: File) {
   });
 }
 
-// 3. Hàm chính để chạy (Anh lưu ý tên hàm này phải khớp với bên App.tsx)
+// Hàm chính: Em đặt tên là getGeminiResponse
+// (Lát anh nhớ kiểm tra bên App.tsx xem có gọi đúng tên này không nhé)
 export async function getGeminiResponse(prompt: string, imageFile: File | null) {
   try {
-    // Tạo model
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    console.log("Bắt đầu gọi Gemini...");
     
-    // Kiểm tra xem model có tạo được không
-    if (!model) {
-      console.error("Lỗi: Không tạo được Model!");
-      throw new Error("Model not found");
-    }
+    // 2. Tạo model
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    console.log("Model đã tạo:", model ? "Thành công" : "Thất bại");
 
-    // Chuẩn bị dữ liệu
     let promptConfig: any[] = [prompt];
     if (imageFile) {
+      console.log("Đang xử lý ảnh...");
       const imagePart = await fileToGenerativePart(imageFile);
       promptConfig = [prompt, imagePart];
     }
 
-    // Gửi đi
+    // 3. Gửi đi
+    console.log("Đang gửi yêu cầu...");
     const result = await model.generateContent(promptConfig);
     const response = await result.response;
-    return response.text();
+    const text = response.text();
+    
+    console.log("Kết quả trả về:", text);
+    return text;
 
   } catch (error) {
-    console.error("Chi tiết lỗi Gemini:", error);
+    console.error("LỖI CHI TIẾT:", error);
     throw error;
   }
 }
