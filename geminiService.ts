@@ -1,6 +1,8 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+//const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Dùng dòng này để lấy key trực tiếp, không qua trung gian
+const ai = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 /**
  * Converts a File object to a Base64 string.
