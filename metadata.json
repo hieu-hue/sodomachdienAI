@@ -1,0 +1,7 @@
+{
+  "name": "PhysiSolve AI",
+  "description": "An intelligent assistant for solving Physics problems involving electrical circuits and mechanical systems using Gemini's multimodal capabilities.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
